@@ -46,7 +46,7 @@ Then open Übersicht. The widget appears on its own; if it doesn't, choose **Ref
 
 - `day`: a full English weekday name.
 - `start` and `end`: 24-hour `HH:MM`, read in **Asia/Kuala_Lumpur** time. To use another timezone, change `TZ` in `lib/classes.cjs` and in `bin/ccusage-refresh.sh` / `bin/data.cjs`.
-- `room` may be empty, in which case it's hidden. A leading "Makmal", "Bilik" or "Dewan" is dropped to keep it short.
+- `room` may be empty for an online class; the widget then shows "Online". A leading "Makmal", "Bilik" or "Dewan" is dropped to keep it short.
 
 ## Permissions
 
