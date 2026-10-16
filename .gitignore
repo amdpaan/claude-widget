@@ -1,0 +1,10 @@
+# Personal data
+timetable.json
+
+# Cached data (the widget caches in ~/Library/Caches/claude-widget, but just in case)
+.cache/
+*.tmp
+usage.json
+
+.DS_Store
+node_modules/

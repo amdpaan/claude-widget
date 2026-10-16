@@ -1,0 +1,11 @@
+{
+  "semester": "Example Semester",
+  "classes": [
+    { "day": "Monday",    "start": "08:00", "end": "10:00", "code": "ABC101", "name": "Introduction to Examples",   "room": "Lab A1 (Network Lab)", "group": "GRP1A" },
+    { "day": "Monday",    "start": "14:00", "end": "16:00", "code": "XYZ210", "name": "Sample Data Structures",     "room": "",                     "group": "GRP1A" },
+    { "day": "Tuesday",   "start": "10:00", "end": "12:00", "code": "DEF305", "name": "Fictional Systems Design",   "room": "Room R12",             "group": "GRP1A" },
+    { "day": "Wednesday", "start": "09:00", "end": "11:00", "code": "GHI150", "name": "Placeholder Mathematics",    "room": "Hall H2",              "group": "GRP1B" },
+    { "day": "Thursday",  "start": "11:00", "end": "13:00", "code": "ABC101", "name": "Introduction to Examples",   "room": "Lab A1 (Network Lab)", "group": "GRP1A" },
+    { "day": "Friday",    "start": "15:00", "end": "17:00", "code": "JKL400", "name": "Demo Project Workshop",      "room": "",                     "group": "GRP1A" }
+  ]
+}
