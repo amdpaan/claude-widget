@@ -3,6 +3,7 @@
 A small [Übersicht](https://tracesof.net/uebersicht/) desktop widget for macOS: one dark, translucent card in the middle of your screen that shows:
 
 - **Now Playing**: the current Apple Music track with album art and previous / play-pause / next buttons. Stays visible while paused; hidden when Music isn't running or nothing is loaded.
+- **This Week in Music**: hours listened, plays, top artist and top song this week, from [music-wrapped](https://github.com/amdpaan/music-wrapped). Click it to open the weekly report. Hidden if music-wrapped isn't installed.
 - **Classes**: your weekly timetable. Shows the class in progress (progress bar, time left) or the next one (countdown), then the rest of today's classes. After the last class of the day, and on weekends, it shows the next class day instead (e.g. "Next: Tomorrow 8:00 AM, ABC101" or "Next: Monday 8:00 AM, ABC101").
 - **System**: CPU usage and RAM used / total.
 - **Claude Usage**: your Claude Code 5-hour and weekly rate-limit usage with reset countdowns, plus today's token count and cost from [ccusage](https://github.com/ryoppippi/ccusage).
@@ -17,6 +18,7 @@ A small [Übersicht](https://tracesof.net/uebersicht/) desktop widget for macOS:
 - `jq` (included with macOS 15 and later; otherwise `brew install jq`)
 - Claude Code with a Claude.ai subscription (Pro / Max / Team) for the rate-limit bars
 - Apple Music (optional)
+- [music-wrapped](https://github.com/amdpaan/music-wrapped) (optional, for This Week in Music)
 
 ## Setup
 
@@ -86,6 +88,7 @@ Cached data (album art, CPU sample, ccusage output) lives in `~/Library/Caches/c
 ## Troubleshooting
 
 - **No widgets listed, and "Open Widgets Folder" does nothing**: Übersicht's background server didn't start. Quit Übersicht (use Activity Monitor if it won't quit) and open it again.
+- **This Week in Music doesn't appear**: it needs `~/Library/Application Support/music-wrapped/summary.json`. Install music-wrapped, or run `music-wrapped summary` to create the file.
 - **Now Playing never appears**: allow Übersicht to control Music in System Settings → Privacy & Security → Automation.
 - **Claude bars say "no data" or stay stale**: run `./bin/usage-refresh.sh ~/.claude/usage.json /tmp/x.lock` and check `~/.claude/usage.json`. If that does nothing, sign in to Claude Code again (the token may have expired) or send a message in a terminal `claude` session.
 

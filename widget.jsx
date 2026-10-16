@@ -229,6 +229,58 @@ const NowPlaying = ({ m, dispatch }) => (
   </div>
 );
 
+const fmtListened = (h, plays) =>
+  plays > 0 && h < 0.1 ? '< 6 min' : h < 1 ? `${Math.round(h * 60)} min` : `${h.toFixed(1)} h`;
+
+const openReport = (file) => run(`open "${file}"`).catch(() => {});
+
+const wrappedRow = css`
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-top: 3px;
+  min-width: 0;
+`;
+
+// This week's listening from music-wrapped's summary.json. Click to open the weekly report.
+const Wrapped = ({ w }) => (
+  <div
+    className={section}
+    style={{ cursor: w.report ? 'pointer' : 'default' }}
+    title={w.report ? 'Open the weekly report' : ''}
+    onClick={() => w.report && openReport(w.report)}
+  >
+    <div className={header}>This Week in Music</div>
+    <div className={between}>
+      <span className={statValue}>
+        {fmtListened(w.hours, w.plays)}
+        <span className={small}> listened</span>
+      </span>
+      <span className={small}>
+        {w.plays} play{w.plays === 1 ? '' : 's'}
+      </span>
+    </div>
+    {w.topArtist ? (
+      <div>
+        <div className={wrappedRow}>
+          <span className={small} style={{ width: 62, flex: 'none' }}>Top artist</span>
+          <span className={title} style={{ fontSize: 12 }}>{w.topArtist.name}</span>
+        </div>
+        {w.topSong && (
+          <div className={wrappedRow}>
+            <span className={small} style={{ width: 62, flex: 'none' }}>Top song</span>
+            <span className={sub}>
+              {w.topSong.title} · {w.topSong.artist}
+            </span>
+          </div>
+        )}
+      </div>
+    ) : (
+      <div className={small} style={{ marginTop: 3 }}>Nothing logged yet this week</div>
+    )}
+  </div>
+);
+
 const withRoom = (c, ...rest) => [c.code, c.room, ...rest].filter(Boolean).join(' · ');
 
 const Classes = ({ c }) => {
@@ -400,6 +452,7 @@ export const render = ({ data, error }, dispatch) => {
   return (
     <div className={card}>
       {m && <NowPlaying m={m} dispatch={dispatch} />}
+      {ok(data.wrapped) && <Wrapped w={data.wrapped} />}
       <Classes c={data.classes} />
       <System s={data.system} />
       <Claude c={data.claude} now={now} />

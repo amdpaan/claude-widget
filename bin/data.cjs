@@ -202,6 +202,29 @@ function ccusage() {
   };
 }
 
+// ---------- Music Wrapped ----------
+
+// summary.json is written by music-wrapped (github.com/amdpaan/music-wrapped) after every
+// logged play and report, so this is just a file read.
+const WRAPPED_DIR = path.join(HOME, 'Library', 'Application Support', 'music-wrapped');
+
+// Monday of the current week (local time) as YYYY-MM-DD, like summary.json's week_start.
+function weekStart(d = new Date()) {
+  const m = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7));
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${m.getFullYear()}-${pad(m.getMonth() + 1)}-${pad(m.getDate())}`;
+}
+
+function wrapped() {
+  const s = readJSON(path.join(WRAPPED_DIR, 'summary.json'));
+  if (!s) return null;
+  const report = path.join(WRAPPED_DIR, 'reports', 'weekly', 'latest.html');
+  const base = { report: fs.existsSync(report) ? report : null };
+  // The file is only rewritten when something is played, so on Monday it still holds last week.
+  if (s.week_start !== weekStart()) return { ...base, hours: 0, plays: 0, topArtist: null, topSong: null };
+  return { ...base, hours: s.hours || 0, plays: s.plays || 0, topArtist: s.top_artist, topSong: s.top_song };
+}
+
 // ---------- Main ----------
 
 const timetableFile = path.join(ROOT, 'timetable.json');
@@ -212,6 +235,7 @@ process.stdout.write(
   JSON.stringify({
     now: Date.now(),
     music: safe(music),
+    wrapped: safe(wrapped),
     classes: timetable
       ? safe(() => classesStatus(timetable))
       : { error: fs.existsSync(timetableFile) ? 'timetable.json is not valid JSON' : 'timetable.json not found' },

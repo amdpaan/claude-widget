@@ -6,7 +6,8 @@
 
 - `widget.jsx`: the only widget file, with UI and styles. Übersicht loads it through the symlink `~/Library/Application Support/Übersicht/widgets/claude-widget` → this repo. The command path depends on that symlink name.
 - `bin/data.sh`: Übersicht runs it every 2 s. It adds Node locations to PATH, then runs `bin/data.cjs`. On battery it reuses the last output for `BATTERY_INTERVAL` (10 s); `--force` skips that (the music buttons use it).
-- `bin/data.cjs`: collects everything and prints one JSON object: `music`, `classes`, `system`, `claude`.
+- `bin/data.cjs`: collects everything and prints one JSON object: `music`, `wrapped`, `classes`, `system`, `claude`.
+- `wrapped` reads `~/Library/Application Support/music-wrapped/summary.json` (written by the separate music-wrapped repo after each play/report). If its `week_start` isn't this week's Monday, it reports zeros instead of last week's data. The section is hidden when the file doesn't exist.
 - `bin/ccusage-refresh.sh`: background `npx ccusage@20 daily --json --by-agent`, at most every 5 min. Only the `claude` agent row is used.
 - `lib/classes.cjs`: timetable logic, always in Asia/Kuala_Lumpur time. Shows current / next / "Next: Tomorrow|<Weekday>".
 - `bin/usage-refresh.sh`: background rate-limit refresh when `usage.json` is over 3 min old. Reads the Claude Code OAuth token from Keychain and calls the undocumented `api.anthropic.com/api/oauth/usage`. Never print, log, or put the token in argv (curl gets it via `-H @-`).
