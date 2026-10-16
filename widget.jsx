@@ -23,7 +23,7 @@ const music = (verb) => `osascript -e 'tell application "Music" to ${verb}'`;
 
 const control = (dispatch, verb) =>
   run(music(verb))
-    .then(() => run(command))
+    .then(() => run(`${command} --force`))
     .then((output) => dispatch({ output }))
     .catch(() => {});
 

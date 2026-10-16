@@ -66,6 +66,12 @@ Claude Code only adds `rate_limits` after the session's first API response. Open
 
 Cached data (album art, CPU sample, ccusage output) lives in `~/Library/Caches/claude-widget`.
 
+## Battery and resources
+
+- **Plugged in:** data refreshes every 2 seconds.
+- **On battery:** `bin/data.sh` reuses its last output for up to 10 seconds, so Node starts at most every 10 seconds. The skipped runs cost about 0.01 s of CPU each. Pressing a music button always fetches fresh data. To change the interval, edit `BATTERY_INTERVAL` in `bin/data.sh`.
+- **Memory:** Übersicht uses about 200 MB in total (app, background server and web view). Each data run peaks at about 50 MB for about 0.2 s, then exits.
+
 ## Customising
 
 - **Position**: edit `top` / `left` / `transform` in `className` at the top of `widget.jsx`. For the top-right corner, use `top: 40px; right: 20px;` and delete the `left` and `transform` lines.
