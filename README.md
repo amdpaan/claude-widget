@@ -74,7 +74,7 @@ Cached data (album art, CPU sample, ccusage output) lives in `~/Library/Caches/c
 
 ## Customising
 
-- **Position**: edit `top` / `left` / `transform` in `className` at the top of `widget.jsx`. For the top-right corner, use `top: 40px; right: 20px;` and delete the `left` and `transform` lines.
+- **Position**: edit `top` / `right` in `className` at the top of `widget.jsx`. The default is the top-right corner, just under the menu bar (`top: 48px; right: 16px;`). To center it instead, use `top: 50%; left: 50%; transform: translate(-50%, -50%);`.
 - **Transparency**: change the alpha in the `card` background (`rgba(24, 24, 28, 0.85)`).
 - The card deliberately has no `backdrop-filter` blur. In Übersicht's WebKit, the blur flickers on and off when the card re-renders every 2 seconds.
 

@@ -56,9 +56,8 @@ const level = (pct) => (pct >= 90 ? '#ff6b6b' : pct >= 70 ? '#ffb86b' : '#7cc4ff
 // ---------- Styles ----------
 
 export const className = `
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 48px;
+  right: 16px;
   width: 300px;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
   color: rgba(255, 255, 255, 0.92);
