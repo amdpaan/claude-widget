@@ -64,10 +64,14 @@ export const className = `
   -webkit-font-smoothing: antialiased;
 `;
 
+// Übersicht can only blur a static copy of the wallpaper, and that copy briefly
+// disappears whenever a dynamic wallpaper changes. Keep the tint dark enough
+// that the card looks the same with or without the blur.
 const card = css`
-  background: rgba(22, 22, 26, 0.55);
+  background: rgba(24, 24, 28, 0.8);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   backdrop-filter: blur(24px) saturate(160%);
+  transform: translateZ(0);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 14px 16px;
