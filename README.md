@@ -1,6 +1,6 @@
 # claude-widget
 
-A small [Übersicht](https://tracesof.net/uebersicht/) desktop widget for macOS: one dark, translucent card in the top-right corner of your screen that shows:
+A small [Übersicht](https://tracesof.net/uebersicht/) desktop widget for macOS: one dark, translucent card in the middle of your screen that shows:
 
 - **Now Playing**: the current Apple Music track with album art and previous / play-pause / next buttons. Hidden when Music isn't running or nothing is loaded.
 - **Classes**: your weekly timetable. Shows the class in progress (progress bar, time left) or the next one (countdown), then the rest of today's classes. After the last class of the day, and on weekends, it shows the next class day instead.

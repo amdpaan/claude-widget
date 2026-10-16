@@ -56,22 +56,19 @@ const level = (pct) => (pct >= 90 ? '#ff6b6b' : pct >= 70 ? '#ffb86b' : '#7cc4ff
 // ---------- Styles ----------
 
 export const className = `
-  top: 40px;
-  right: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 300px;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
   color: rgba(255, 255, 255, 0.92);
   -webkit-font-smoothing: antialiased;
 `;
 
-// Übersicht can only blur a static copy of the wallpaper, and that copy briefly
-// disappears whenever a dynamic wallpaper changes. Keep the tint dark enough
-// that the card looks the same with or without the blur.
+// No backdrop-filter: in Übersicht's WebKit the blur flickers on and off when
+// the card re-renders every 2 seconds, so a plain translucent tint is used.
 const card = css`
-  background: rgba(24, 24, 28, 0.8);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  backdrop-filter: blur(24px) saturate(160%);
-  transform: translateZ(0);
+  background: rgba(24, 24, 28, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 14px 16px;
