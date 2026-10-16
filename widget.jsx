@@ -242,6 +242,50 @@ const wrappedRow = css`
   min-width: 0;
 `;
 
+const weekBars = css`
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 22px;
+  margin-top: 6px;
+`;
+
+const DAYS = 'MTWTFSS';
+
+// Minutes per day, Monday to Sunday; today is highlighted.
+const WeekChart = ({ daily, today }) => {
+  const max = Math.max(...daily, 1);
+  return (
+    <div>
+      <div className={weekBars}>
+        {daily.map((m, i) => (
+          <div
+            key={i}
+            title={`${Math.round(m)} min`}
+            style={{
+              flex: 1,
+              height: `${Math.max(8, (m / max) * 100)}%`,
+              borderRadius: 2,
+              background: i === today ? '#1ed760' : m > 0 ? 'rgba(30, 215, 96, 0.45)' : 'rgba(255, 255, 255, 0.1)',
+            }}
+          />
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: 3, marginTop: 2 }}>
+        {daily.map((_, i) => (
+          <span
+            key={i}
+            className={small}
+            style={{ flex: 1, textAlign: 'center', fontSize: 8.5, color: i === today ? '#1ed760' : undefined }}
+          >
+            {DAYS[i]}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // This week's listening from music-wrapped's summary.json. Click to open the weekly report.
 const Wrapped = ({ w }) => (
   <div
@@ -251,17 +295,23 @@ const Wrapped = ({ w }) => (
     onClick={() => w.report && openReport(w.report)}
   >
     <div className={header}>This Week in Music</div>
-    <div className={between}>
-      <span className={statValue}>
-        {fmtListened(w.hours, w.plays)}
-        <span className={small}> listened</span>
-      </span>
-      <span className={small}>
-        {w.plays} play{w.plays === 1 ? '' : 's'}
-      </span>
+    <div className={row} style={{ alignItems: 'stretch' }}>
+      {w.art ? <img className={art} src={w.art} style={{ width: 52, height: 52 }} /> : null}
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div className={between}>
+          <span className={statValue} style={{ fontSize: 18 }}>
+            {fmtListened(w.hours, w.plays)}
+            <span className={small}> listened</span>
+          </span>
+          <span className={small}>
+            {w.plays} play{w.plays === 1 ? '' : 's'}
+          </span>
+        </div>
+        {w.daily && <WeekChart daily={w.daily} today={w.today} />}
+      </div>
     </div>
     {w.topArtist ? (
-      <div>
+      <div style={{ marginTop: 6 }}>
         <div className={wrappedRow}>
           <span className={small} style={{ width: 62, flex: 'none' }}>Top artist</span>
           <span className={title} style={{ fontSize: 12 }}>{w.topArtist.name}</span>

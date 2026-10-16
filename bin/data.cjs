@@ -215,20 +215,37 @@ function weekStart(d = new Date()) {
   return `${m.getFullYear()}-${pad(m.getMonth() + 1)}-${pad(m.getDate())}`;
 }
 
+// music-wrapped caches 160 px covers as artwork/<track id>.jpg (about 8 KB). Sent as a data URI,
+// the same way as the Now Playing artwork.
+function cover(pid) {
+  if (!pid || !/^[0-9A-F]{16}$/.test(pid)) return null;
+  try {
+    return `data:image/jpeg;base64,${fs.readFileSync(path.join(WRAPPED_DIR, 'artwork', `${pid}.jpg`)).toString('base64')}`;
+  } catch {
+    return null;
+  }
+}
+
 function wrapped() {
   const s = readJSON(path.join(WRAPPED_DIR, 'summary.json'));
   if (!s) return null;
   const report = path.join(WRAPPED_DIR, 'reports', 'weekly', 'latest.html');
-  const base = { report: fs.existsSync(report) ? report : null };
+  const base = { report: fs.existsSync(report) ? report : null, today: (new Date().getDay() + 6) % 7 };
   // The file is only rewritten when something is played, so on Monday it still holds last week.
-  if (s.week_start !== weekStart()) return { ...base, hours: 0, plays: 0, topArtist: null, topSong: null, topGenre: null };
+  if (s.week_start !== weekStart()) {
+    return { ...base, hours: 0, plays: 0, topArtist: null, topSong: null, topGenre: null, daily: null, art: null };
+  }
+  // Fields added in later music-wrapped versions may be missing from older summary files.
+  const daily = Array.isArray(s.daily_minutes) && s.daily_minutes.length === 7 ? s.daily_minutes : null;
   return {
     ...base,
     hours: s.hours || 0,
     plays: s.plays || 0,
     topArtist: s.top_artist,
     topSong: s.top_song,
-    topGenre: s.top_genre || null, // added in music-wrapped later; older summary files don't have it
+    topGenre: s.top_genre || null,
+    daily,
+    art: cover(s.top_song && s.top_song.pid),
   };
 }
 
