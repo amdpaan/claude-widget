@@ -2,8 +2,8 @@
 
 A small [Übersicht](https://tracesof.net/uebersicht/) desktop widget for macOS: one dark, translucent card in the middle of your screen that shows:
 
-- **Now Playing**: the current Apple Music track with album art and previous / play-pause / next buttons. Hidden when Music isn't running or nothing is loaded.
-- **Classes**: your weekly timetable. Shows the class in progress (progress bar, time left) or the next one (countdown), then the rest of today's classes. After the last class of the day, and on weekends, it shows the next class day instead.
+- **Now Playing**: the current Apple Music track with album art and previous / play-pause / next buttons. Stays visible while paused; hidden when Music isn't running or nothing is loaded.
+- **Classes**: your weekly timetable. Shows the class in progress (progress bar, time left) or the next one (countdown), then the rest of today's classes. After the last class of the day, and on weekends, it shows the next class day instead (e.g. "Next: Tomorrow 8:00 AM, ABC101" or "Next: Monday 8:00 AM, ABC101").
 - **System**: CPU usage and RAM used / total.
 - **Claude Usage**: your Claude Code 5-hour and weekly rate-limit usage with reset countdowns, plus today's token count and cost from [ccusage](https://github.com/ryoppippi/ccusage).
 
@@ -65,6 +65,20 @@ Claude Code only adds `rate_limits` after the session's first API response. Open
 "Today" runs `npx ccusage@20 daily --json --by-agent` in the background, at most once every 5 minutes, and shows only the Claude Code numbers. The first run can take a few seconds while npx downloads ccusage.
 
 Cached data (album art, CPU sample, ccusage output) lives in `~/Library/Caches/claude-widget`.
+
+## Customising
+
+- **Position**: edit `top` / `left` / `transform` in `className` at the top of `widget.jsx`. For the top-right corner, use `top: 40px; right: 20px;` and delete the `left` and `transform` lines.
+- **Transparency**: change the alpha in the `card` background (`rgba(24, 24, 28, 0.85)`).
+- The card deliberately has no `backdrop-filter` blur. In Übersicht's WebKit, the blur flickers on and off when the card re-renders every 2 seconds.
+
+Übersicht reloads the widget automatically when you save a file, so there's no need to restart it.
+
+## Troubleshooting
+
+- **No widgets listed, and "Open Widgets Folder" does nothing**: Übersicht's background server didn't start. Quit Übersicht (use Activity Monitor if it won't quit) and open it again.
+- **Now Playing never appears**: allow Übersicht to control Music in System Settings → Privacy & Security → Automation.
+- **Claude bars say "no data"**: send a message in Claude Code, then check `~/.claude/usage.json`.
 
 ## Testing
 
