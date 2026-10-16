@@ -9,7 +9,8 @@
 - `bin/data.cjs`: collects everything and prints one JSON object: `music`, `classes`, `system`, `claude`.
 - `bin/ccusage-refresh.sh`: background `npx ccusage@20 daily --json --by-agent`, at most every 5 min. Only the `claude` agent row is used.
 - `lib/classes.cjs`: timetable logic, always in Asia/Kuala_Lumpur time. Shows current / next / "Next: Tomorrow|<Weekday>".
-- `statusline/statusline.sh`: Claude Code status line. Saves `rate_limits` to `~/.claude/usage.json` and passes through to `~/.claude/statusline-previous.sh` if it exists.
+- `bin/usage-refresh.sh`: background rate-limit refresh when `usage.json` is over 3 min old. Reads the Claude Code OAuth token from Keychain and calls the undocumented `api.anthropic.com/api/oauth/usage`. Never print, log, or put the token in argv (curl gets it via `-H @-`).
+- `statusline/statusline.sh`: Claude Code status line. Saves `rate_limits` to `~/.claude/usage.json` (only when that session's `rate_limits` changed since its last save; per-session copies in `~/Library/Caches/claude-widget/statusline/`) and passes through to `~/.claude/statusline-previous.sh` if it exists.
 - `install.sh`: creates the symlinks and sets `statusLine` in `~/.claude/settings.json` (the command uses `~`, not an absolute path).
 
 ## Rules learned the hard way
@@ -18,7 +19,7 @@
 - **Helper scripts must not end in `.js`/`.jsx`/`.coffee`.** Übersicht loads those as widgets. Use `.cjs` or `.sh`.
 - **Cache goes in `~/Library/Caches/claude-widget`**, never inside the repo. Writing files in the widgets folder every 2 s can trigger reloads.
 - **Übersicht reloads on file save.** No restart needed. If no widgets are listed at all, its Node server didn't start: kill the app by PID and reopen it.
-- **`rate_limits`** (`five_hour` / `seven_day`, each with `used_percentage` and `resets_at` in epoch seconds) only appear in status line input after the session's first API response. Opening Claude Code alone doesn't update `usage.json`.
+- **`rate_limits`** (`five_hour` / `seven_day`, each with `used_percentage` and `resets_at` in epoch seconds) only appear in status line input after the session's first API response, and only in CLI sessions (the desktop app doesn't run the status line). That's why `usage-refresh.sh` exists.
 - **Music artwork** is exported once per track via AppleScript, resized with `sips`, and sent as a data URI.
 
 ## Testing

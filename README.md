@@ -54,13 +54,16 @@ Then open Übersicht. The widget appears on its own; if it doesn't, choose **Ref
 | --- | --- | --- |
 | **Automation → Übersicht → Music** | Read the current track and control playback | macOS asks the first time the widget runs while Music is open. If you denied it, enable it in System Settings → Privacy & Security → Automation. |
 
-No other permissions are needed. CPU and RAM come from Node's `os` module and `vm_stat`. Claude data comes from files in `~/.claude`.
+No other permissions are needed. CPU and RAM come from Node's `os` module and `vm_stat`. Claude data comes from files in `~/.claude`, plus Claude Code's login token in the Keychain for the background usage refresh. macOS may ask once whether `security` can access it.
 
 ## How the Claude usage data works
 
-Claude Code passes `rate_limits` (5-hour and 7-day `used_percentage` and `resets_at`) to the status line command. `statusline/statusline.sh` writes them to `~/.claude/usage.json`, along with an `updated_at` timestamp, and the widget reads that file.
+The widget reads `~/.claude/usage.json`, which gets written in two ways:
 
-Claude Code only adds `rate_limits` after the session's first API response. Opening Claude Code is not enough: **send at least one message** to refresh `usage.json`. A bar is greyed out once its reset time has passed, until fresh data arrives.
+1. **Status line.** Claude Code passes `rate_limits` (5-hour and 7-day `used_percentage` and `resets_at`) to the status line command, and `statusline/statusline.sh` saves them. This only happens in terminal `claude` sessions, after the session's first API response. A redraw that carries the same numbers as that session's last save is skipped, so an idle session can't mark old numbers as just updated.
+2. **Background refresh.** When the data is more than 3 minutes old, `bin/usage-refresh.sh` reads Claude Code's login token from the macOS Keychain (`Claude Code-credentials`) and calls `api.anthropic.com/api/oauth/usage`, the endpoint behind Claude Code's `/usage` command. This keeps the bars current when you use the desktop app or aren't using Claude at all. The token is never saved, printed, or passed on a command line, and it is only sent to `api.anthropic.com`. The endpoint is undocumented and may change. If the call fails, the old data stays and the "updated … ago" label shows how old it is.
+
+A bar is greyed out once its reset time has passed, until fresh data arrives.
 
 "Today" runs `npx ccusage@20 daily --json --by-agent` in the background, at most once every 5 minutes, and shows only the Claude Code numbers. The first run can take a few seconds while npx downloads ccusage.
 
@@ -84,7 +87,7 @@ Cached data (album art, CPU sample, ccusage output) lives in `~/Library/Caches/c
 
 - **No widgets listed, and "Open Widgets Folder" does nothing**: Übersicht's background server didn't start. Quit Übersicht (use Activity Monitor if it won't quit) and open it again.
 - **Now Playing never appears**: allow Übersicht to control Music in System Settings → Privacy & Security → Automation.
-- **Claude bars say "no data"**: send a message in Claude Code, then check `~/.claude/usage.json`.
+- **Claude bars say "no data" or stay stale**: run `./bin/usage-refresh.sh ~/.claude/usage.json /tmp/x.lock` and check `~/.claude/usage.json`. If that does nothing, sign in to Claude Code again (the token may have expired) or send a message in a terminal `claude` session.
 
 ## Testing
 

@@ -13,6 +13,7 @@ const HOME = os.homedir();
 const CACHE = process.env.CLAUDE_WIDGET_CACHE || path.join(HOME, 'Library', 'Caches', 'claude-widget');
 const USAGE_FILE = path.join(HOME, '.claude', 'usage.json');
 const CCUSAGE_TTL_MS = 5 * 60 * 1000;
+const USAGE_TTL_MS = 3 * 60 * 1000;
 
 fs.mkdirSync(CACHE, { recursive: true });
 
@@ -134,8 +135,31 @@ function toMs(v) {
   return Number.isNaN(t) ? null : t;
 }
 
+function mtimeAge(file) {
+  try {
+    return Date.now() - fs.statSync(file).mtimeMs;
+  } catch {
+    return Infinity;
+  }
+}
+
+// usage.json is written by the status line (CLI sessions only) and by usage-refresh.sh,
+// which runs in the background when the data is older than 3 minutes. The stamp file
+// stops it retrying every 2 s when the call keeps failing.
+function refreshLimits(u) {
+  const updated = u ? toMs(u.updated_at) : null;
+  if (updated && Date.now() - updated < USAGE_TTL_MS) return;
+  const stamp = path.join(CACHE, 'usage-refresh.stamp');
+  const lock = path.join(CACHE, 'usage-refresh.lock');
+  if (mtimeAge(stamp) < USAGE_TTL_MS || mtimeAge(lock) < 60 * 1000) return;
+  fs.writeFileSync(stamp, '');
+  fs.writeFileSync(lock, String(process.pid));
+  spawn(path.join(ROOT, 'bin', 'usage-refresh.sh'), [USAGE_FILE, lock], { detached: true, stdio: 'ignore' }).unref();
+}
+
 function claudeLimits() {
   const u = readJSON(USAGE_FILE);
+  safe(() => refreshLimits(u));
   if (!u) return null;
   const win = (w) =>
     w && w.used_percentage != null ? { percent: Number(w.used_percentage), resetsAt: toMs(w.resets_at) } : null;
