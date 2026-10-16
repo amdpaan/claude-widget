@@ -274,6 +274,12 @@ const Wrapped = ({ w }) => (
             </span>
           </div>
         )}
+        {w.topGenre && (
+          <div className={wrappedRow}>
+            <span className={small} style={{ width: 62, flex: 'none' }}>Top genre</span>
+            <span className={sub}>{w.topGenre.name}</span>
+          </div>
+        )}
       </div>
     ) : (
       <div className={small} style={{ marginTop: 3 }}>Nothing logged yet this week</div>

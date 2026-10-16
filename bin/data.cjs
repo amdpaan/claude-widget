@@ -221,8 +221,15 @@ function wrapped() {
   const report = path.join(WRAPPED_DIR, 'reports', 'weekly', 'latest.html');
   const base = { report: fs.existsSync(report) ? report : null };
   // The file is only rewritten when something is played, so on Monday it still holds last week.
-  if (s.week_start !== weekStart()) return { ...base, hours: 0, plays: 0, topArtist: null, topSong: null };
-  return { ...base, hours: s.hours || 0, plays: s.plays || 0, topArtist: s.top_artist, topSong: s.top_song };
+  if (s.week_start !== weekStart()) return { ...base, hours: 0, plays: 0, topArtist: null, topSong: null, topGenre: null };
+  return {
+    ...base,
+    hours: s.hours || 0,
+    plays: s.plays || 0,
+    topArtist: s.top_artist,
+    topSong: s.top_song,
+    topGenre: s.top_genre || null, // added in music-wrapped later; older summary files don't have it
+  };
 }
 
 // ---------- Main ----------

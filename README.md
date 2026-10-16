@@ -3,7 +3,7 @@
 A small [Übersicht](https://tracesof.net/uebersicht/) desktop widget for macOS: one dark, translucent card in the middle of your screen that shows:
 
 - **Now Playing**: the current Apple Music track with album art and previous / play-pause / next buttons. Stays visible while paused; hidden when Music isn't running or nothing is loaded.
-- **This Week in Music**: hours listened, plays, top artist and top song this week, from [music-wrapped](https://github.com/amdpaan/music-wrapped). Click it to open the weekly report. Hidden if music-wrapped isn't installed.
+- **This Week in Music**: hours listened, plays, top artist, top song and top genre this week, from [music-wrapped](https://github.com/amdpaan/music-wrapped). Click it to open the weekly report. Hidden if music-wrapped isn't installed.
 - **Classes**: your weekly timetable. Shows the class in progress (progress bar, time left) or the next one (countdown), then the rest of today's classes. After the last class of the day, and on weekends, it shows the next class day instead (e.g. "Next: Tomorrow 8:00 AM, ABC101" or "Next: Monday 8:00 AM, ABC101").
 - **System**: CPU usage and RAM used / total.
 - **Claude Usage**: your Claude Code 5-hour and weekly rate-limit usage with reset countdowns, plus today's token count and cost from [ccusage](https://github.com/ryoppippi/ccusage).
