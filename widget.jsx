@@ -338,30 +338,79 @@ const Wrapped = ({ w }) => (
 );
 
 // Home Wi-Fi devices from net-watch's summary.json. Click to open the dashboard (when its agent runs).
+// Styled after the net-watch dashboard: its pixel owl Pip, serif numbers and the same colour per count.
 const NET_STALE_MS = 30 * 60 * 1000; // the agent scans every 5 min; older than this means it isn't running
 
-const netStat = css`
+// Pip, net-watch's own owl (16×16 pixel map, same as the dashboard). Letters are colours.
+const PIP = [
+  '..o..........o..', '..oo........oo..', '..obooooooooob..', '.obbbbbbbbbbbbo.',
+  '.obeeeebbeeeebo.', 'obbeppebbeppebbo', 'obbeppebbeppebbo', 'obbeeeeaaeeeebbo',
+  'odbbbbbaabbbbbdo', 'odbbwwwwwwwwbbdo', 'odbwwvwwvwwvwbdo', 'odbwwwwwwwwwwbdo',
+  '.odwvwwvwwvwwdo.', '.odbwwwwwwwwbdo.', '..oobbbbbbbboo..', '....aa....aa....',
+];
+const PIP_ASLEEP = { 4: '.obbbbbbbbbbbbo.', 5: 'obbbbbbbbbbbbbbo', 6: 'obboooobboooobbo', 7: 'obbbbbbaabbbbbbo' };
+const PIP_COLORS = {
+  o: '#3b4278', b: '#5966a8', d: '#46528f', w: '#f3ead8', v: '#dccfb4',
+  e: '#fffaf0', p: '#15172a', a: '#e0a33a', s: '#c9cff5',
+};
+// Little glyphs above Pip's head (x offset, rows): "z" when asleep, "!" for a new device.
+const PIP_GLYPHS = {
+  away: [12, ['sss', '..s', '.s.', 's..', 'sss']],
+  alert: [7, ['ss', 'ss', 'ss', '..', 'ss']],
+};
+
+const Pip = ({ mood }) => {
+  const rows = PIP.map((r, y) => (mood === 'away' && PIP_ASLEEP[y]) || r);
+  const cells = [];
+  rows.forEach((r, y) =>
+    [...r].forEach((c, x) => c !== '.' && cells.push(<rect key={`${x}-${y}`} x={x} y={y + 6} width="1.02" height="1.02" fill={PIP_COLORS[c]} />))
+  );
+  const glyph = PIP_GLYPHS[mood];
+  if (glyph) {
+    const [gx, grows] = glyph;
+    grows.forEach((r, y) =>
+      [...r].forEach((c, x) => c !== '.' && cells.push(<rect key={`g${x}-${y}`} x={gx + x} y={y} width="1.02" height="1.02" fill={PIP_COLORS.s} />))
+    );
+  }
+  return (
+    <svg viewBox="0 0 16 22" width="30" height="41" shapeRendering="crispEdges" style={{ flex: 'none' }}>
+      {cells}
+    </svg>
+  );
+};
+
+const NET_COLORS = { online: '#7bc28e', known: '#78a6d6', unknown: '#d9ae55' };
+const serif = 'ui-serif, "New York", Georgia, serif';
+
+const netCard = css`
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 1px;
+  padding: 7px 9px 6px;
+  border-radius: 9px;
 `;
 
 const NetWatch = ({ n, now }) => {
   const old = !n.lastScan || now - n.lastScan > NET_STALE_MS;
   const since = n.lastScan ? fmtAgo(now - n.lastScan) : null;
-  // Old counts say so on their own line; fresh ones share it with the new-device note.
-  const status = !since
-    ? 'No scan yet'
+  const mood = n.onHome === false || old ? 'away' : n.newToday > 0 ? 'alert' : 'idle';
+  const headline = !since
+    ? 'Waiting for the first scan'
     : n.onHome === false
-      ? `Away from home · counts from ${since}`
+      ? 'Away from home'
       : old
-        ? `Counts from ${since} (net-watch not scanning)`
-        : `Scanned ${since}`;
+        ? 'Not scanning right now'
+        : n.newToday > 0
+          ? `${n.newToday} new device${n.newToday === 1 ? '' : 's'} today`
+          : n.unknown > 0
+            ? `All quiet, ${n.unknown} unnamed`
+            : 'All quiet at home';
+  const status = !since ? 'No scan yet' : old || n.onHome === false ? `Counts from ${since}` : `Scanned ${since}`;
   const stats = [
-    ['Online', n.online, null],
-    ['Known', n.known, null],
-    ['Unknown', n.unknown, n.unknown > 0 ? '#ffb86b' : null],
+    ['Online', n.online, NET_COLORS.online],
+    ['Known', n.known, NET_COLORS.known],
+    ['Unknown', n.unknown, NET_COLORS.unknown],
   ];
   return (
     <div
@@ -370,21 +419,29 @@ const NetWatch = ({ n, now }) => {
       title={n.dashboard ? 'Open the net-watch dashboard' : ''}
       onClick={() => n.dashboard && openReport(n.dashboard)}
     >
-      <div className={header}>Home Network</div>
-      <div className={`${row} ${old ? stale : ''}`} style={{ alignItems: 'flex-start', gap: 16 }}>
+      <div className={row} style={{ gap: 9, marginBottom: 8 }}>
+        <Pip mood={mood} />
+        <div style={{ minWidth: 0 }}>
+          <div className={header} style={{ marginBottom: 2 }}>Home Network</div>
+          <div
+            className={title}
+            style={{ fontFamily: serif, fontSize: 15, color: mood === 'alert' ? NET_COLORS.unknown : undefined }}
+          >
+            {headline}
+          </div>
+        </div>
+      </div>
+      <div className={`${row} ${old ? stale : ''}`} style={{ alignItems: 'stretch', gap: 6 }}>
         {stats.map(([label, value, color]) => (
-          <div key={label} className={netStat}>
-            <span className={statValue} style={{ fontSize: 18, color: color || undefined }}>{value}</span>
-            <span className={small}>{label}</span>
+          <div key={label} className={netCard} style={{ background: `${color}24` }}>
+            <span style={{ fontFamily: serif, fontSize: 20, fontWeight: 600, lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
+              {value}
+            </span>
+            <span className={small} style={{ color }}>{label}</span>
           </div>
         ))}
       </div>
-      {n.newToday > 0 && (
-        <div className={small} style={{ color: '#ffb86b', marginTop: 6 }}>
-          ● {n.newToday} new device{n.newToday === 1 ? '' : 's'} today
-        </div>
-      )}
-      <div className={small} style={{ marginTop: n.newToday > 0 ? 2 : 6 }}>{status}</div>
+      <div className={small} style={{ marginTop: 6 }}>{status}</div>
     </div>
   );
 };
