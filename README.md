@@ -5,7 +5,7 @@ A small [Übersicht](https://tracesof.net/uebersicht/) desktop widget for macOS:
 - **Now Playing**: the current Apple Music track with album art and previous / play-pause / next buttons. Stays visible while paused; hidden when Music isn't running or nothing is loaded.
 - **This Week in Music**: the cover of your top song, minutes listened with a Mon–Sun mini chart, plays, top artist, top song and top genre this week, from [music-wrapped](https://github.com/amdpaan/music-wrapped). Click it to open the Music Wrapped home page (this week so far and every report). Hidden if music-wrapped isn't installed.
 - **Classes**: your weekly timetable. Shows the class in progress (progress bar, time left) or the next one (countdown), then the rest of today's classes. After the last class of the day, and on weekends, it shows the next class day instead (e.g. "Next: Tomorrow 8:00 AM, ABC101" or "Next: Monday 8:00 AM, ABC101").
-- **Home Network**: styled after the net-watch dashboard. Its pixel owl Pip shows the mood (keeping watch, "!" for a new device, asleep when you're away), with a one-line headline such as "All quiet at home" and tinted cards for devices online, known (labeled) and unknown. It comes from net-watch, a separate home network scanner. Click it to open the net-watch dashboard (when its login agent is installed). The counts fade when they're older than 30 minutes, e.g. away from home. Hidden if net-watch isn't installed.
+- **Home Network**: styled after the net-watch dashboard. Its pixel owl Pip shows the mood (keeping watch, "!" for a new device, asleep when you're away), with a one-line headline such as "All quiet at home" and tinted cards for devices online, known (labeled) and unknown. It comes from [net-watch](https://github.com/amdpaan/net-watch), a separate home network scanner. Click it to open the net-watch dashboard (when its login agent is installed). The counts fade when they're older than 30 minutes, e.g. away from home. Hidden if net-watch isn't installed.
 - **System**: CPU usage and RAM used / total.
 - **Claude Usage**: your Claude Code 5-hour and weekly rate-limit usage with reset countdowns, plus today's token count and cost from [ccusage](https://github.com/ryoppippi/ccusage).
 
@@ -20,7 +20,7 @@ A small [Übersicht](https://tracesof.net/uebersicht/) desktop widget for macOS:
 - Claude Code with a Claude.ai subscription (Pro / Max / Team) for the rate-limit bars
 - Apple Music (optional)
 - [music-wrapped](https://github.com/amdpaan/music-wrapped) (optional, for This Week in Music)
-- net-watch (optional, for Home Network)
+- [net-watch](https://github.com/amdpaan/net-watch) (optional, for Home Network)
 
 ## Setup
 
