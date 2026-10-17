@@ -286,12 +286,12 @@ const WeekChart = ({ daily, today }) => {
   );
 };
 
-// This week's listening from music-wrapped's summary.json. Click to open the weekly report.
+// This week's listening from music-wrapped's summary.json. Click to open the reports home page.
 const Wrapped = ({ w }) => (
   <div
     className={section}
     style={{ cursor: w.report ? 'pointer' : 'default' }}
-    title={w.report ? 'Open the weekly report' : ''}
+    title={w.report ? 'Open Music Wrapped' : ''}
     onClick={() => w.report && openReport(w.report)}
   >
     <div className={header}>This Week in Music</div>

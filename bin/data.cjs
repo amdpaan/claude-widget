@@ -229,8 +229,11 @@ function cover(pid) {
 function wrapped() {
   const s = readJSON(path.join(WRAPPED_DIR, 'summary.json'));
   if (!s) return null;
-  const report = path.join(WRAPPED_DIR, 'reports', 'weekly', 'latest.html');
-  const base = { report: fs.existsSync(report) ? report : null, today: (new Date().getDay() + 6) % 7 };
+  // Clicking opens the reports home page (this week so far + every report); the weekly report if
+  // there's no home page yet.
+  const report = [path.join(WRAPPED_DIR, 'reports', 'index.html'), path.join(WRAPPED_DIR, 'reports', 'weekly', 'latest.html')]
+    .find((f) => fs.existsSync(f)) || null;
+  const base = { report, today: (new Date().getDay() + 6) % 7 };
   // The file is only rewritten when something is played, so on Monday it still holds last week.
   if (s.week_start !== weekStart()) {
     return { ...base, hours: 0, plays: 0, topArtist: null, topSong: null, topGenre: null, daily: null, art: null };
