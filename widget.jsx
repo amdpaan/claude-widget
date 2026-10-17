@@ -337,6 +337,58 @@ const Wrapped = ({ w }) => (
   </div>
 );
 
+// Home Wi-Fi devices from net-watch's summary.json. Click to open the dashboard (when its agent runs).
+const NET_STALE_MS = 30 * 60 * 1000; // the agent scans every 5 min; older than this means it isn't running
+
+const netStat = css`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+`;
+
+const NetWatch = ({ n, now }) => {
+  const old = !n.lastScan || now - n.lastScan > NET_STALE_MS;
+  const since = n.lastScan ? fmtAgo(now - n.lastScan) : null;
+  // Old counts say so on their own line; fresh ones share it with the new-device note.
+  const status = !since
+    ? 'No scan yet'
+    : n.onHome === false
+      ? `Away from home · counts from ${since}`
+      : old
+        ? `Counts from ${since} (net-watch not scanning)`
+        : `Scanned ${since}`;
+  const stats = [
+    ['Online', n.online, null],
+    ['Known', n.known, null],
+    ['Unknown', n.unknown, n.unknown > 0 ? '#ffb86b' : null],
+  ];
+  return (
+    <div
+      className={section}
+      style={{ cursor: n.dashboard ? 'pointer' : 'default' }}
+      title={n.dashboard ? 'Open the net-watch dashboard' : ''}
+      onClick={() => n.dashboard && openReport(n.dashboard)}
+    >
+      <div className={header}>Home Network</div>
+      <div className={`${row} ${old ? stale : ''}`} style={{ alignItems: 'flex-start', gap: 16 }}>
+        {stats.map(([label, value, color]) => (
+          <div key={label} className={netStat}>
+            <span className={statValue} style={{ fontSize: 18, color: color || undefined }}>{value}</span>
+            <span className={small}>{label}</span>
+          </div>
+        ))}
+      </div>
+      {n.newToday > 0 && (
+        <div className={small} style={{ color: '#ffb86b', marginTop: 6 }}>
+          ● {n.newToday} new device{n.newToday === 1 ? '' : 's'} today
+        </div>
+      )}
+      <div className={small} style={{ marginTop: n.newToday > 0 ? 2 : 6 }}>{status}</div>
+    </div>
+  );
+};
+
 const withRoom = (c, ...rest) => [c.code, c.room, ...rest].filter(Boolean).join(' · ');
 
 const Classes = ({ c }) => {
@@ -510,6 +562,7 @@ export const render = ({ data, error }, dispatch) => {
       {m && <NowPlaying m={m} dispatch={dispatch} />}
       {ok(data.wrapped) && <Wrapped w={data.wrapped} />}
       <Classes c={data.classes} />
+      {ok(data.netwatch) && <NetWatch n={data.netwatch} now={now} />}
       <System s={data.system} />
       <Claude c={data.claude} now={now} />
     </div>

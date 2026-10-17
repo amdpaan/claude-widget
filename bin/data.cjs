@@ -252,6 +252,29 @@ function wrapped() {
   };
 }
 
+// ---------- Home network (net-watch) ----------
+
+// summary.json is written by net-watch (github.com/amdpaan/net-watch) after every scan of the home
+// network, so this is just a file read too.
+const NETWATCH_DIR = path.join(HOME, 'Library', 'Application Support', 'net-watch');
+const NETWATCH_AGENT = path.join(HOME, 'Library', 'LaunchAgents', 'com.netwatch.serve.plist');
+
+function netwatch() {
+  const s = readJSON(path.join(NETWATCH_DIR, 'summary.json'));
+  if (!s) return null;
+  const n = (v) => (Number.isFinite(v) ? v : 0);
+  return {
+    online: n(s.online),
+    known: n(s.known),
+    unknown: n(s.unknown),
+    newToday: n(s.new_today),
+    lastScan: Number.isFinite(s.last_scan) ? s.last_scan * 1000 : null,
+    onHome: typeof s.on_home_network === 'boolean' ? s.on_home_network : null,
+    // The dashboard only runs for sure when the login agent is installed; otherwise clicking does nothing.
+    dashboard: fs.existsSync(NETWATCH_AGENT) ? 'http://127.0.0.1:8765/' : null,
+  };
+}
+
 // ---------- Main ----------
 
 const timetableFile = path.join(ROOT, 'timetable.json');
@@ -263,6 +286,7 @@ process.stdout.write(
     now: Date.now(),
     music: safe(music),
     wrapped: safe(wrapped),
+    netwatch: safe(netwatch),
     classes: timetable
       ? safe(() => classesStatus(timetable))
       : { error: fs.existsSync(timetableFile) ? 'timetable.json is not valid JSON' : 'timetable.json not found' },

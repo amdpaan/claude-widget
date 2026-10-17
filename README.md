@@ -5,6 +5,7 @@ A small [Übersicht](https://tracesof.net/uebersicht/) desktop widget for macOS:
 - **Now Playing**: the current Apple Music track with album art and previous / play-pause / next buttons. Stays visible while paused; hidden when Music isn't running or nothing is loaded.
 - **This Week in Music**: the cover of your top song, minutes listened with a Mon–Sun mini chart, plays, top artist, top song and top genre this week, from [music-wrapped](https://github.com/amdpaan/music-wrapped). Click it to open the Music Wrapped home page (this week so far and every report). Hidden if music-wrapped isn't installed.
 - **Classes**: your weekly timetable. Shows the class in progress (progress bar, time left) or the next one (countdown), then the rest of today's classes. After the last class of the day, and on weekends, it shows the next class day instead (e.g. "Next: Tomorrow 8:00 AM, ABC101" or "Next: Monday 8:00 AM, ABC101").
+- **Home Network**: how many devices are on your home Wi-Fi now, how many you've labeled (known) and how many you haven't (unknown, in orange), and a warning when a new device joined today. It comes from net-watch, a separate home network scanner. Click it to open the net-watch dashboard (when its login agent is installed). The counts fade when they're older than 30 minutes, e.g. away from home. Hidden if net-watch isn't installed.
 - **System**: CPU usage and RAM used / total.
 - **Claude Usage**: your Claude Code 5-hour and weekly rate-limit usage with reset countdowns, plus today's token count and cost from [ccusage](https://github.com/ryoppippi/ccusage).
 
@@ -19,6 +20,7 @@ A small [Übersicht](https://tracesof.net/uebersicht/) desktop widget for macOS:
 - Claude Code with a Claude.ai subscription (Pro / Max / Team) for the rate-limit bars
 - Apple Music (optional)
 - [music-wrapped](https://github.com/amdpaan/music-wrapped) (optional, for This Week in Music)
+- net-watch (optional, for Home Network)
 
 ## Setup
 
@@ -89,6 +91,7 @@ Cached data (album art, CPU sample, ccusage output) lives in `~/Library/Caches/c
 
 - **No widgets listed, and "Open Widgets Folder" does nothing**: Übersicht's background server didn't start. Quit Übersicht (use Activity Monitor if it won't quit) and open it again.
 - **This Week in Music doesn't appear**: it needs `~/Library/Application Support/music-wrapped/summary.json`. Install music-wrapped, or run `music-wrapped summary` to create the file.
+- **Home Network doesn't appear**: it needs `~/Library/Application Support/net-watch/summary.json`, which net-watch writes after each scan of your home network. Run `netwatch scan` at home once.
 - **Now Playing never appears**: allow Übersicht to control Music in System Settings → Privacy & Security → Automation.
 - **Claude bars say "no data" or stay stale**: run `./bin/usage-refresh.sh ~/.claude/usage.json /tmp/x.lock` and check `~/.claude/usage.json`. If that does nothing, sign in to Claude Code again (the token may have expired) or send a message in a terminal `claude` session.
 
