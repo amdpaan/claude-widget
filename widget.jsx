@@ -72,6 +72,7 @@ const card = css`
   border-radius: 16px;
   padding: 14px 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  position: relative;
 `;
 
 const section = css`
@@ -602,6 +603,45 @@ const Claude = ({ c, now }) => {
   );
 };
 
+// music-wrapped's own mascot, a pixel cassette with reel eyes (16×10 map, same as its render.MASCOT),
+// sitting on the card's top edge and bobbing like it does there. Click to open Music Wrapped when its reports exist.
+// The `uebersicht` module has no `keyframes` export, so the animation is a plain <style>.
+const CASSETTE_BOB = `
+  @keyframes cassette-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+  @media (prefers-reduced-motion: reduce) { .cassette-bob { animation: none !important; } }
+`;
+const CASSETTE = [
+  '..GGGGGGGGGGGG..', '.GLLLLLLLLLLLLG.', '.GLDDDLLLLDDDLG.', '.GLDWDLLLLDWDLG.', '.GLDDDLLLLDDDLG.',
+  '.GLLLLLDDLLLLLG.', '.GGGGGGGGGGGGGG.', '.GGKGGGGGGGGKGG.', '..GGGGGGGGGGGG..', '...K.K....K.K...',
+];
+const CASSETTE_COLORS = { G: '#1ed760', L: '#c9f7da', D: '#0b2e19', W: '#ffffff', K: '#0b2e19' };
+
+const mascot = css`
+  position: absolute;
+  top: -27px;
+  right: 22px;
+  width: 48px;
+  height: 30px;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.45));
+  animation: cassette-bob 3.2s ease-in-out infinite;
+`;
+
+const Cassette = ({ report }) => (
+  <svg
+    className={`${mascot} cassette-bob`}
+    viewBox="0 0 16 10"
+    shapeRendering="crispEdges"
+    style={{ cursor: report ? 'pointer' : 'default' }}
+    onClick={() => report && openReport(report)}
+  >
+    <style>{CASSETTE_BOB}</style>
+    {report && <title>Open Music Wrapped</title>}
+    {CASSETTE.flatMap((r, y) =>
+      [...r].map((c, x) => c !== '.' && <rect key={`${x}-${y}`} x={x} y={y} width="1.02" height="1.02" fill={CASSETTE_COLORS[c]} />)
+    )}
+  </svg>
+);
+
 // ---------- Render ----------
 
 export const render = ({ data, error }, dispatch) => {
@@ -616,6 +656,7 @@ export const render = ({ data, error }, dispatch) => {
   const m = ok(data.music) ? data.music : null;
   return (
     <div className={card}>
+      <Cassette report={ok(data.wrapped) && data.wrapped.report} />
       {m && <NowPlaying m={m} dispatch={dispatch} />}
       {ok(data.wrapped) && <Wrapped w={data.wrapped} />}
       <Classes c={data.classes} />
