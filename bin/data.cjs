@@ -275,6 +275,46 @@ function netwatch() {
   };
 }
 
+// ---------- Wi-Fi heatmap ----------
+
+// summary.json is written by wifi-heatmap (github.com/amdpaan/wifi-heatmap) at every check-in, sample
+// (every 5 s) and checkout while you log a place, so this is just a file read too.
+const HEATMAP_DIR = path.join(HOME, 'Library', 'Application Support', 'wifi-heatmap');
+const HEATMAP_AGENT = path.join(HOME, 'Library', 'LaunchAgents', 'com.wifiheatmap.serve.plist');
+const HEATMAP_LIVE_MS = 60 * 1000; // a live reading older than this means the logging stopped uncleanly
+
+function wifiheatmap() {
+  const s = readJSON(path.join(HEATMAP_DIR, 'summary.json'));
+  if (!s) return null;
+  const MOODS = ['great', 'ok', 'poor', 'dead', 'idle'];
+  const mood = (m) => (MOODS.includes(m) ? m : 'idle');
+  const level = (v) => (Number.isInteger(v) && v >= 0 && v <= 4 ? v : 0);
+  const l = s.live;
+  const live = l && Number.isFinite(l.ts) && Date.now() - l.ts * 1000 < HEATMAP_LIVE_MS
+    ? {
+        place: String(l.place || ''),
+        since: l.since * 1000,
+        samples: Number.isFinite(l.samples) ? l.samples : 0,
+        connected: l.connected !== false,
+        rssi: Number.isFinite(l.rssi) ? l.rssi : null,
+        pingMs: Number.isFinite(l.ping_ms) ? l.ping_ms : null,
+        loss: Number.isFinite(l.loss) ? l.loss : null,
+      }
+    : null;
+  return {
+    // A stale live reading falls back to the mood from the rankings alone.
+    mood: live ? mood(s.mood) : mood(s.base_mood || s.mood),
+    level: live ? level(s.level) : level(Number.isInteger(s.base_level) ? s.base_level : s.level),
+    live,
+    best: s.best && s.best.name ? { name: String(s.best.name), score: s.best.score, label: String(s.best.label || '') } : null,
+    dead: Array.isArray(s.dead) ? s.dead.filter((d) => d && d.name).slice(0, 3).map((d) => ({ name: String(d.name), score: d.score })) : [],
+    ranked: Number.isFinite(s.ranked) ? s.ranked : 0,
+    places: Number.isFinite(s.places) ? s.places : 0,
+    // Like net-watch: the dashboard only runs for sure when the login agent is installed.
+    dashboard: fs.existsSync(HEATMAP_AGENT) ? 'http://127.0.0.1:8766/' : null,
+  };
+}
+
 // ---------- Main ----------
 
 const timetableFile = path.join(ROOT, 'timetable.json');
@@ -287,6 +327,7 @@ process.stdout.write(
     music: safe(music),
     wrapped: safe(wrapped),
     netwatch: safe(netwatch),
+    wifiheatmap: safe(wifiheatmap),
     classes: timetable
       ? safe(() => classesStatus(timetable))
       : { error: fs.existsSync(timetableFile) ? 'timetable.json is not valid JSON' : 'timetable.json not found' },

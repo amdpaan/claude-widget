@@ -447,6 +447,105 @@ const NetWatch = ({ n, now }) => {
   );
 };
 
+// Study spots from wifi-heatmap's summary.json. Click to open its dashboard (when its agent runs).
+// While you log a place it shows the live signal; otherwise the best spot and the dead zones.
+
+// The antenna-bot, wifi-heatmap's own pixel mascot (16×22 map and mood layers, same as its dashboard).
+// Letters are colours; 1-4 are its chest bars, lit up to `level` in the mood's colour; "z" erases.
+const BOT = [
+  '................', '.......tt.......', '.......tt.......', '.......aa.......', '.......aa.......',
+  '..oooooooooooo..', '..obbbbbbbbbbo..', '..obssssssssbo..', '..obseesseesbo..', '.dobseesseesbod.',
+  '..obssssssssbo..', '..obssmmmmssbo..', '..obbbbbbbbbbo..', '..oooooooooooo..', '......oddo......',
+  '...oooooooooo...', '..dobbbbbbb4od..', '..dobbbbb3b4od..', '..oobbb2b3b4oo..', '...ob1b2b3b4o...',
+  '...oooooooooo...', '....ww....ww....',
+];
+const BOT_LAYERS = {
+  happy: { 8: '..obsessssesbo..', 9: '.dobesessesebod.', 11: '..obsmmmmmmsbo..' },
+  worried: { 7: '..obssssssssboq.', 8: '..obssssssssboq.' },
+  sad: { 9: '.dobssssssssbod.', 10: '..obssmmmmssbo..', 11: '..obsmssssmsbo..' },
+  lids: { 8: '..obssssssssbo..' },
+  sparks: { 0: '....y......y....', 1: '...y........y...', 3: '..y..........y..' },
+  droop: { 1: '.......zz.......', 2: '.....aaaz.......', 3: '...tt.aaz.......', 4: '...tt..aa.......' },
+};
+const BOT_FACES = { great: ['happy', 'sparks'], ok: [], poor: ['worried', 'lids'], dead: ['sad', 'droop'], idle: [] };
+const SPOT_COLORS = { great: '#0ca30c', ok: '#fab219', poor: '#ec835a', dead: '#d03b3b', idle: '#6f797c' };
+const BOT_COLORS = {
+  o: '#56656c', a: '#56656c', w: '#56656c', b: '#a9bcc4', d: '#7f959f', s: '#22313a',
+  e: '#7ff0c8', m: '#7ff0c8', y: '#fab219', q: '#6da7ec',
+};
+const BAR_OFF = '#6f858f';
+
+const AntennaBot = ({ mood, level }) => {
+  const rows = BOT.map((r, y) =>
+    BOT_FACES[mood].reduce((acc, l) => {
+      const lr = BOT_LAYERS[l][y];
+      return lr ? [...acc].map((c, x) => (lr[x] === '.' ? c : lr[x])).join('') : acc;
+    }, r)
+  );
+  const fill = (c) =>
+    c === 't' ? (mood === 'dead' ? BAR_OFF : SPOT_COLORS[mood])
+      : '1234'.includes(c) ? (Number(c) <= level ? SPOT_COLORS[mood] : BAR_OFF)
+      : BOT_COLORS[c];
+  return (
+    <svg viewBox="0 0 16 22" width="30" height="41" shapeRendering="crispEdges" style={{ flex: 'none' }}>
+      {rows.flatMap((r, y) =>
+        [...r].map((c, x) => c !== '.' && c !== 'z' && <rect key={`${x}-${y}`} x={x} y={y} width="1.02" height="1.02" fill={fill(c)} />)
+      )}
+    </svg>
+  );
+};
+
+const WifiHeatmap = ({ h, now }) => {
+  const l = h.live;
+  const best = h.best;
+  let headline;
+  let detail;
+  let status;
+  if (l) {
+    headline = `At ${l.place}`;
+    detail = !l.samples
+      ? 'Speed test running…'
+      : l.connected
+        ? [l.rssi != null && `${l.rssi} dBm`, l.pingMs != null && `ping ${Math.round(l.pingMs)} ms`, l.loss != null && `${Math.round(l.loss)}% loss`]
+            .filter(Boolean).join(' · ')
+        : 'Not connected to Wi-Fi';
+    status = `Logging · ${l.samples} sample${l.samples === 1 ? '' : 's'} · since ${fmtAgo(now - l.since).replace(' ago', '')}`;
+  } else if (best) {
+    headline = `Best spot: ${best.name}`;
+    detail = h.dead.length ? `Dead zone${h.dead.length === 1 ? '' : 's'}: ${h.dead.map((d) => d.name).join(', ')}` : 'No dead zones found';
+    status = `${h.ranked} of ${h.places} place${h.places === 1 ? '' : 's'} ranked`;
+  } else {
+    headline = h.ranked ? 'No great spot yet' : 'No spot ranked yet';
+    detail = h.ranked
+      ? h.dead.length ? `Dead zone${h.dead.length === 1 ? '' : 's'}: ${h.dead.map((d) => d.name).join(', ')}` : `${h.ranked} place${h.ranked === 1 ? '' : 's'} ranked`
+      : 'Log a place for a minute to rank it';
+    status = h.places ? `${h.ranked} of ${h.places} place${h.places === 1 ? '' : 's'} ranked` : 'wifi-heatmap log --place "…"';
+  }
+  return (
+    <div
+      className={section}
+      style={{ cursor: h.dashboard ? 'pointer' : 'default' }}
+      title={h.dashboard ? 'Open the wifi-heatmap dashboard' : ''}
+      onClick={() => h.dashboard && openReport(h.dashboard)}
+    >
+      <div className={row} style={{ gap: 9 }}>
+        <AntennaBot mood={h.mood} level={h.level} />
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div className={header} style={{ marginBottom: 2 }}>Wi-Fi Heatmap</div>
+          <div className={between}>
+            <span className={title} style={{ minWidth: 0 }}>{headline}</span>
+            {!l && best && (
+              <span className={statValue} style={{ fontSize: 13, color: SPOT_COLORS[h.mood], flex: 'none' }}>{best.score}</span>
+            )}
+          </div>
+          <div className={sub}>{detail}</div>
+          <div className={small} style={{ marginTop: 2 }}>{status}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const withRoom = (c, ...rest) => [c.code, c.room, ...rest].filter(Boolean).join(' · ');
 
 const Classes = ({ c }) => {
@@ -661,6 +760,7 @@ export const render = ({ data, error }, dispatch) => {
       {ok(data.wrapped) && <Wrapped w={data.wrapped} />}
       <Classes c={data.classes} />
       {ok(data.netwatch) && <NetWatch n={data.netwatch} now={now} />}
+      {ok(data.wifiheatmap) && <WifiHeatmap h={data.wifiheatmap} now={now} />}
       <System s={data.system} />
       <Claude c={data.claude} now={now} />
     </div>

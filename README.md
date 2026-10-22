@@ -6,6 +6,7 @@ A small [Übersicht](https://tracesof.net/uebersicht/) desktop widget for macOS:
 - **This Week in Music**: the cover of your top song, minutes listened with a Mon–Sun mini chart, plays, top artist, top song and top genre this week, from [music-wrapped](https://github.com/amdpaan/music-wrapped). Click it to open the Music Wrapped home page (this week so far and every report). Hidden if music-wrapped isn't installed.
 - **Classes**: your weekly timetable. Shows the class in progress (progress bar, time left) or the next one (countdown), then the rest of today's classes. After the last class of the day, and on weekends, it shows the next class day instead (e.g. "Next: Tomorrow 8:00 AM, ABC101" or "Next: Monday 8:00 AM, ABC101").
 - **Home Network**: styled after the net-watch dashboard. Its pixel owl Pip shows the mood (keeping watch, "!" for a new device, asleep when you're away), with a one-line headline such as "All quiet at home" and tinted cards for devices online, known (labeled) and unknown. It comes from [net-watch](https://github.com/amdpaan/net-watch), a separate home network scanner. Click it to open the net-watch dashboard (when its login agent is installed). The counts fade when they're older than 30 minutes, e.g. away from home. Hidden if net-watch isn't installed.
+- **Wi-Fi Heatmap**: your study spots from [wifi-heatmap](https://github.com/amdpaan/wifi-heatmap), a separate campus Wi-Fi logger. Its pixel antenna-bot shows the mood (sparking in a great spot, drooping in a dead zone) with its chest bars lit by the signal. While you log a place it shows the live signal, ping and loss; otherwise the best spot with its score and the dead zones. Click it to open the wifi-heatmap dashboard (when its login agent is installed). Hidden if wifi-heatmap isn't installed.
 - **System**: CPU usage and RAM used / total.
 - **Claude Usage**: your Claude Code 5-hour and weekly rate-limit usage with reset countdowns, plus today's token count and cost from [ccusage](https://github.com/ryoppippi/ccusage).
 
@@ -21,6 +22,7 @@ A small [Übersicht](https://tracesof.net/uebersicht/) desktop widget for macOS:
 - Apple Music (optional)
 - [music-wrapped](https://github.com/amdpaan/music-wrapped) (optional, for This Week in Music)
 - [net-watch](https://github.com/amdpaan/net-watch) (optional, for Home Network)
+- [wifi-heatmap](https://github.com/amdpaan/wifi-heatmap) (optional, for Wi-Fi Heatmap)
 
 ## Setup
 
@@ -92,6 +94,7 @@ Cached data (album art, CPU sample, ccusage output) lives in `~/Library/Caches/c
 - **No widgets listed, and "Open Widgets Folder" does nothing**: Übersicht's background server didn't start. Quit Übersicht (use Activity Monitor if it won't quit) and open it again.
 - **This Week in Music doesn't appear**: it needs `~/Library/Application Support/music-wrapped/summary.json`. Install music-wrapped, or run `music-wrapped summary` to create the file.
 - **Home Network doesn't appear**: it needs `~/Library/Application Support/net-watch/summary.json`, which net-watch writes after each scan of your home network. Run `netwatch scan` at home once.
+- **Wi-Fi Heatmap doesn't appear**: it needs `~/Library/Application Support/wifi-heatmap/summary.json`, which wifi-heatmap writes while you log a place. Run `wifi-heatmap summary` once.
 - **Now Playing never appears**: allow Übersicht to control Music in System Settings → Privacy & Security → Automation.
 - **Claude bars say "no data" or stay stale**: run `./bin/usage-refresh.sh ~/.claude/usage.json /tmp/x.lock` and check `~/.claude/usage.json`. If that does nothing, sign in to Claude Code again (the token may have expired) or send a message in a terminal `claude` session.
 
